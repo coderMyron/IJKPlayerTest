@@ -27,6 +27,7 @@
 {
     BOOL _isMediaSliderBeingDragged;
     BOOL _isStop;
+    BOOL _isPlay;
 }
 
 - (instancetype)initWithURL:(NSURL *)url {
@@ -63,19 +64,19 @@
     [self.view addSubview:buttonStop];
     
     float y = buttonStop.frame.origin.y + buttonStop.frame.size.height + 10;
-    UILabel *labelCurrentTime = [[UILabel alloc] initWithFrame:CGRectMake(10, y, 60, 20)];
-    labelCurrentTime.text = @"00:00";
+    UILabel *labelCurrentTime = [[UILabel alloc] initWithFrame:CGRectMake(10, y, 80, 20)];
+    labelCurrentTime.text = @"00:00:00";
     labelCurrentTime.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:labelCurrentTime];
     self.lableCurrentTime = labelCurrentTime;
     
-    UILabel *labeTotalTime = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width - 60 - 10, y, 60, 20)];
-    labeTotalTime.text = @"00:00";
+    UILabel *labeTotalTime = [[UILabel alloc] initWithFrame:CGRectMake(self.view.bounds.size.width - 80 - 10, y, 80, 20)];
+    labeTotalTime.text = @"00:00:00";
     labeTotalTime.textAlignment = NSTextAlignmentCenter;
     [self.view addSubview:labeTotalTime];
     self.lableTotalTime = labeTotalTime;
     
-    UISlider *sliderProgress = [[UISlider alloc] initWithFrame:CGRectMake(70, y, self.view.bounds.size.width - 70 - 70, 20)];
+    UISlider *sliderProgress = [[UISlider alloc] initWithFrame:CGRectMake(10 + 80, y, self.view.bounds.size.width - 2 * (10 + 80), 20)];
     [self.view addSubview:sliderProgress];
     self.sliderProgress = sliderProgress;
     
@@ -141,7 +142,7 @@
     //    [options setPlayerOptionIntValue:1 forKey:@"packet-buffering"];
         
         _player = [[IJKFFMoviePlayerController alloc] initWithContentURL:self.url withOptions:options];
-        //[_player setShouldAutoplay:NO] ;//不自动播放
+//        [_player setShouldAutoplay:NO] ;//不自动播放
         UIView *playerView = [self.player view];
         playerView.frame = self.PlayerView.bounds;
         playerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
@@ -155,10 +156,11 @@
 - (void)playVideo{
     if (![self.player isPlaying]) {
         [self.player play];
-        //[self refreshMediaControl];
+        _isPlay = YES;
     }else{
         [self.player pause];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
+        _isPlay = NO;
 
     }
 }
@@ -166,7 +168,7 @@
 - (void)stopVideo{
     if ([self.player isPlaying]) {
         [self.player stop];
-        [self.player shutdown];
+        [self releasePlayer];
         [self.button setTitle:@"播放" forState:UIControlStateNormal];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
         _isStop = YES;
@@ -325,6 +327,9 @@
         case IJKMPMoviePlaybackStatePaused:
             NSLog(@"IJKMPMoviePlayBackStateDidChange %d: paused", (int)_player.playbackState);
             [self.button setTitle:@"播放" forState:UIControlStateNormal];
+//            if (_isPlay) {
+//                [self.player play];
+//            }
             break;
             
         case IJKMPMoviePlaybackStateInterrupted:
@@ -352,9 +357,9 @@
     NSInteger intDuration = duration + 0.5;
     if (intDuration > 0) {
         self.sliderProgress.maximumValue = duration;
-        self.lableTotalTime.text = [NSString stringWithFormat:@"%02d:%02d", (int)(intDuration / 60), (int)(intDuration % 60)];
+        self.lableTotalTime.text = [self timeformatFromSeconds:intDuration];
     } else {
-        self.lableTotalTime.text = @"--:--";
+        self.lableTotalTime.text = @"--:--:--";
         self.sliderProgress.maximumValue = 1.0f;
     }
     
@@ -371,7 +376,7 @@
     } else {
         self.sliderProgress.value = 0.0f;
     }
-    self.lableCurrentTime.text = [NSString stringWithFormat:@"%02d:%02d", (int)(intPosition / 60), (int)(intPosition % 60)];
+    self.lableCurrentTime.text = [self timeformatFromSeconds:intPosition];;
     
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
 //    if (!self.overlayPanel.hidden) {
@@ -379,6 +384,20 @@
 //    }
 
 
+}
+
+// 时间格式
+- (NSString*)timeformatFromSeconds:(NSInteger)seconds
+{
+    //format of hour
+    NSString *str_hour = [NSString stringWithFormat:@"%02ld",seconds/3600];
+    //format of minute
+    NSString *str_minute = [NSString stringWithFormat:@"%02ld",(seconds%3600)/60];
+    //format of second
+    NSString *str_second = [NSString stringWithFormat:@"%02ld",seconds%60];
+    //format of time
+    NSString *format_time = [NSString stringWithFormat:@"%@:%@:%@",str_hour,str_minute,str_second];
+    return format_time;
 }
 
 
