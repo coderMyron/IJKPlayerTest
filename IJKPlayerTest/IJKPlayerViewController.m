@@ -155,7 +155,7 @@
 - (void)playVideo{
     if (![self.player isPlaying]) {
         [self.player play];
-        [self refreshMediaControl];
+        //[self refreshMediaControl];
     }else{
         [self.player pause];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
@@ -170,6 +170,7 @@
         [self.button setTitle:@"播放" forState:UIControlStateNormal];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
         _isStop = YES;
+        
     }
     
 }
@@ -318,6 +319,7 @@
         case IJKMPMoviePlaybackStatePlaying:
             NSLog(@"IJKMPMoviePlayBackStateDidChange %d: playing", (int)_player.playbackState);
             [self.button setTitle:@"暂停" forState:UIControlStateNormal];
+            [self refreshMediaControl];
             break;
             
         case IJKMPMoviePlaybackStatePaused:
