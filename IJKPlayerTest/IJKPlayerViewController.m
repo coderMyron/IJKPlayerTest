@@ -27,7 +27,7 @@
 {
     BOOL _isMediaSliderBeingDragged;
     BOOL _isStop;
-    BOOL _isPlay;
+//    BOOL _isPlay;
 }
 
 - (instancetype)initWithURL:(NSURL *)url {
@@ -155,25 +155,29 @@
 
 - (void)playVideo{
     if (![self.player isPlaying]) {
+        if (_isStop) {
+            [self initPlayer];
+            [self.player prepareToPlay];
+        }
         [self.player play];
-        _isPlay = YES;
+//        _isPlay = YES;
     }else{
         [self.player pause];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
-        _isPlay = NO;
+//        _isPlay = NO;
 
     }
 }
 
 - (void)stopVideo{
-    if ([self.player isPlaying]) {
+//    if ([self.player isPlaying]) {
         [self.player stop];
         [self releasePlayer];
         [self.button setTitle:@"播放" forState:UIControlStateNormal];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
         _isStop = YES;
         
-    }
+//    }
     
 }
 
