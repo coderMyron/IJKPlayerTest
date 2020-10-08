@@ -7,18 +7,34 @@
 
 #import "IJKPlayerViewController.h"
 #import <IJKMediaFramework/IJKMediaFramework.h>
+#import "TouchButton.h"
 
+#define kIsFullScreen ((([[[UIDevice currentDevice] systemVersion] floatValue] >= 11.0f) && ([[[[UIApplication sharedApplication] windows] objectAtIndex:0] safeAreaInsets].bottom > 0.0))? YES : NO) // 判断是否全面屏
+#define kNavigationBarHeight (kIsFullScreen ? 88.f : 64.f)   // 导航栏高度
 
+typedef NS_ENUM(NSUInteger, Direction) {
+    DirectionLeftOrRight,
+    DirectionUpOrDown,
+    DirectionNone
+};
 
-@interface IJKPlayerViewController ()
+@interface IJKPlayerViewController ()<TouchButtonDelegate>
 
 @property(atomic, strong) NSURL *url;
 @property(atomic, retain) id <IJKMediaPlayback> player;
-@property(nonatomic,weak) UIView *PlayerView;
-@property(nonatomic,weak) UIButton *button;
+@property(nonatomic,weak) UIView *playerView;
+@property(nonatomic,weak) UIButton *buttonPlay;
 @property(nonatomic,weak) UILabel *lableCurrentTime;
 @property(nonatomic,weak) UILabel *lableTotalTime;
 @property(nonatomic,weak) UISlider *sliderProgress;
+@property(nonatomic,assign) Direction direction;
+@property(nonatomic,strong) TouchButton *touchButton;//声音亮度滑动播放快进快退控件
+@property(nonatomic,assign) CGPoint startPoint;//开始滑动前的点
+@property(nonatomic,assign) CGFloat startVB;//开始前的亮度或者音量值
+@property(nonatomic,assign) CGFloat startVideoRate;//开始滑动前的比率
+@property(nonatomic,strong) MPVolumeView *volumeView;//控制音量的view
+@property(nonatomic,strong) UISlider* volumeViewSlider;//控制音量
+@property(nonatomic,assign) CGFloat currentRate;//当期视频播放的进度
 
 
 @end
@@ -43,10 +59,10 @@
     
     self.view.backgroundColor = UIColor.whiteColor;
     
-    UIView *displayView = [[UIView alloc] initWithFrame:CGRectMake(0, 50, self.view.bounds.size.width, self.view.bounds.size.width * 9 / 16)];
-    self.PlayerView = displayView;
-    self.PlayerView.backgroundColor = [UIColor blackColor];
-    [self.view addSubview:self.PlayerView];
+    UIView *displayView = [[UIView alloc] initWithFrame:CGRectMake(0, kNavigationBarHeight, self.view.bounds.size.width, self.view.bounds.size.width * 9 / 16)];
+    self.playerView = displayView;
+    self.playerView.backgroundColor = [UIColor blackColor];
+    [self.view addSubview:self.playerView];
     
     UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, 50)];
     button.center = CGPointMake(self.view.bounds.size.width / 2, 200 / 2 + self.view.bounds.size.width * 9 / 16);
@@ -54,7 +70,7 @@
     button.backgroundColor = [UIColor blackColor];
     [button addTarget:self action:@selector(playVideo) forControlEvents:(UIControlEventTouchUpInside)];
     [self.view addSubview:button];
-    self.button = button;
+    self.buttonPlay = button;
     
     UIButton *buttonStop = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 100, 50)];
     buttonStop.center = CGPointMake(self.view.bounds.size.width / 2, 400 / 2 + self.view.bounds.size.width * 9 / 16);
@@ -85,6 +101,7 @@
     [sliderProgress addTarget:self action:@selector(didSliderTouchUpOutside) forControlEvents:UIControlEventTouchUpOutside];
     [sliderProgress addTarget:self action:@selector(didSliderTouchUpInside) forControlEvents:UIControlEventTouchUpInside];
     [sliderProgress addTarget:self action:@selector(didSliderValueChanged) forControlEvents:UIControlEventValueChanged];
+    
 }
 
 - (void)initPlayer{
@@ -144,11 +161,19 @@
         _player = [[IJKFFMoviePlayerController alloc] initWithContentURL:self.url withOptions:options];
 //        [_player setShouldAutoplay:NO] ;//不自动播放
         UIView *playerView = [self.player view];
-        playerView.frame = self.PlayerView.bounds;
-        playerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        [self.PlayerView insertSubview:playerView atIndex:1];
+        playerView.frame = self.playerView.bounds;
+        //playerView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [self.playerView insertSubview:playerView atIndex:1];
         [_player setScalingMode:IJKMPMovieScalingModeAspectFill];
         [self installMovieNotificationObservers];
+        
+        //添加自定义的Button到视频画面上
+        self.touchButton = [[TouchButton alloc] initWithFrame:self.playerView.bounds];
+        self.touchButton.touchDelegate = self;
+        [self.playerView addSubview:self.touchButton];
+        self.volumeView.frame = CGRectMake(0, 0, self.view.frame.size.width, 20);
+        self.volumeView.backgroundColor = UIColor.redColor;
+        //[self.playerView addSubview:self.volumeView];
     }
     
 }
@@ -173,7 +198,7 @@
 //    if ([self.player isPlaying]) {
         [self.player stop];
         [self releasePlayer];
-        [self.button setTitle:@"播放" forState:UIControlStateNormal];
+        [self.buttonPlay setTitle:@"播放" forState:UIControlStateNormal];
         [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(refreshMediaControl) object:nil];
         _isStop = YES;
         
@@ -319,18 +344,18 @@
     switch (_player.playbackState) {
         case IJKMPMoviePlaybackStateStopped:
             NSLog(@"IJKMPMoviePlayBackStateDidChange %d: stoped", (int)_player.playbackState);
-            [self.button setTitle:@"播放" forState:UIControlStateNormal];
+            [self.buttonPlay setTitle:@"播放" forState:UIControlStateNormal];
             break;
             
         case IJKMPMoviePlaybackStatePlaying:
             NSLog(@"IJKMPMoviePlayBackStateDidChange %d: playing", (int)_player.playbackState);
-            [self.button setTitle:@"暂停" forState:UIControlStateNormal];
+            [self.buttonPlay setTitle:@"暂停" forState:UIControlStateNormal];
             [self refreshMediaControl];
             break;
             
         case IJKMPMoviePlaybackStatePaused:
             NSLog(@"IJKMPMoviePlayBackStateDidChange %d: paused", (int)_player.playbackState);
-            [self.button setTitle:@"播放" forState:UIControlStateNormal];
+            [self.buttonPlay setTitle:@"播放" forState:UIControlStateNormal];
 //            if (_isPlay) {
 //                [self.player play];
 //            }
@@ -343,7 +368,7 @@
         case IJKMPMoviePlaybackStateSeekingForward:
         case IJKMPMoviePlaybackStateSeekingBackward: {
             NSLog(@"IJKMPMoviePlayBackStateDidChange %d: seeking", (int)_player.playbackState);
-            [self.button setTitle:@"暂停" forState:UIControlStateNormal];
+            [self.buttonPlay setTitle:@"暂停" forState:UIControlStateNormal];
             break;
         }
             
@@ -404,6 +429,99 @@
     return format_time;
 }
 
+#pragma mark - TouchButtonDelegate代理
+- (void)touchesBeganWithPoint:(CGPoint)point {
+    //NSLog(@"touchesBeganWithPoint");
+    //记录首次触摸坐标
+    self.startPoint = point;
+    //检测用户是触摸屏幕的左边还是右边，以此判断用户是要调节音量还是亮度，左边是亮度，右边是音量
+    if (self.startPoint.x <= self.touchButton.frame.size.width / 2.0) {
+        //亮度
+        self.startVB = [UIScreen mainScreen].brightness;
+    } else {
+        //音量
+        self.startVB = self.volumeViewSlider.value;
+    }
+    //方向置为无
+    self.direction = DirectionNone;
+    //记录当前视频播放的进度
+    self.startVideoRate = self.player.currentPlaybackTime / self.player.duration;
+    
+}
 
+- (void)touchesEndWithPoint:(CGPoint)point {
+    if (self.direction == DirectionLeftOrRight) {
+        self.player.currentPlaybackTime = self.currentRate * self.player.duration;
+    }
+}
+
+- (void)touchesMoveWithPoint:(CGPoint)point {
+    //得出手指在Button上移动的距离
+    CGPoint panPoint = CGPointMake(point.x - self.startPoint.x, point.y - self.startPoint.y);
+    //分析出用户滑动的方向
+    if (self.direction == DirectionNone) {
+        if (panPoint.x >= 30 || panPoint.x <= -30) {
+            //进度
+            self.direction = DirectionLeftOrRight;
+        } else if (panPoint.y >= 30 || panPoint.y <= -30) {
+            //音量和亮度
+            self.direction = DirectionUpOrDown;
+        }
+    }
+    
+    if (self.direction == DirectionNone) {
+        return;
+    } else if (self.direction == DirectionUpOrDown) {
+        //音量和亮度
+        if (self.startPoint.x <= self.touchButton.frame.size.width / 2.0) {
+            //调节亮度
+            if (panPoint.y < 0) {
+                //增加亮度
+                [[UIScreen mainScreen] setBrightness:self.startVB + (-panPoint.y / 30.0 / 10)];
+            } else {
+                //减少亮度
+                [[UIScreen mainScreen] setBrightness:self.startVB - (panPoint.y / 30.0 / 10)];
+            }
+            
+        } else {
+            //音量
+            if (panPoint.y < 0) {
+                //增大音量
+                [self.volumeViewSlider setValue:self.startVB + (-panPoint.y / 30.0 / 10) animated:YES];
+                if (self.startVB + (-panPoint.y / 30 / 10) - self.volumeViewSlider.value >= 0.1) {
+                    [self.volumeViewSlider setValue:0.1 animated:NO];
+                    [self.volumeViewSlider setValue:self.startVB + (-panPoint.y / 30.0 / 10) animated:YES];
+                }
+                
+            } else {
+                //减少音量
+                [self.volumeViewSlider setValue:self.startVB - (panPoint.y / 30.0 / 10) animated:YES];
+            }
+        }
+    } else if (self.direction == DirectionLeftOrRight ) {
+        //进度
+        CGFloat rate = self.startVideoRate + (panPoint.x / self.touchButton.bounds.size.width / 3);
+        if (rate > 1) {
+            rate = 1;
+        } else if (rate < 0) {
+            rate = 0;
+        }
+        self.currentRate = rate;
+    }
+}
+
+- (MPVolumeView *)volumeView {
+    if (_volumeView == nil) {
+        _volumeView  = [[MPVolumeView alloc] init];
+        [_volumeView sizeToFit];
+        for (UIView *view in [_volumeView subviews]){
+            if ([view.class.description isEqualToString:@"MPVolumeSlider"]){
+                self.volumeViewSlider = (UISlider*)view;
+                break;
+            }
+        }
+    }
+    return _volumeView;
+}
 
 @end

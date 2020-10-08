@@ -31,6 +31,7 @@
 		A18159B5252A08830067529D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A18159B4252A08830067529D /* UIKit.framework */; };
 		A18159B7252A088E0067529D /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A18159B6252A088E0067529D /* VideoToolbox.framework */; };
 		A18159BC252A08B10067529D /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A18159BB252A08B10067529D /* libc++.tbd */; };
+		A1835E05252F3AD3003F8645 /* TouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = A1835E04252F3AD3003F8645 /* TouchButton.m */; };
 		A18C3D03252B527100BC8FEE /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A18C3D02252B527100BC8FEE /* IJKMediaFramework.framework */; };
 /* End PBXBuildFile section */
 
@@ -86,6 +87,8 @@
 		A18159B4252A08830067529D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		A18159B6252A088E0067529D /* VideoToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = VideoToolbox.framework; path = System/Library/Frameworks/VideoToolbox.framework; sourceTree = SDKROOT; };
 		A18159BB252A08B10067529D /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
+		A1835E03252F3AD3003F8645 /* TouchButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TouchButton.h; sourceTree = "<group>"; };
+		A1835E04252F3AD3003F8645 /* TouchButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TouchButton.m; sourceTree = "<group>"; };
 		A18C3D02252B527100BC8FEE /* IJKMediaFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFramework.framework; path = Frameworks/IJKMediaFramework.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -166,6 +169,8 @@
 				A12598142529C9FA00582697 /* main.m */,
 				A11BF29E252C558B000F1CF8 /* IJKPlayerViewController.h */,
 				A11BF29F252C558B000F1CF8 /* IJKPlayerViewController.m */,
+				A1835E03252F3AD3003F8645 /* TouchButton.h */,
+				A1835E04252F3AD3003F8645 /* TouchButton.m */,
 			);
 			path = IJKPlayerTest;
 			sourceTree = "<group>";
@@ -342,6 +347,7 @@
 				A11BF2A0252C558B000F1CF8 /* IJKPlayerViewController.m in Sources */,
 				A125980A2529C9F900582697 /* ViewController.m in Sources */,
 				A12598042529C9F900582697 /* AppDelegate.m in Sources */,
+				A1835E05252F3AD3003F8645 /* TouchButton.m in Sources */,
 				A12598152529C9FA00582697 /* main.m in Sources */,
 				A12598072529C9F900582697 /* SceneDelegate.m in Sources */,
 			);

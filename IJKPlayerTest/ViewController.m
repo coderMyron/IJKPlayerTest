@@ -20,6 +20,9 @@
 - (void)viewDidLoad{
     [super viewDidLoad];
     
+    self.title = @"ijkplayer";
+    self.view.backgroundColor = UIColor.whiteColor;
+    
     UIButton *buttonLocal = [[UIButton alloc] initWithFrame:CGRectMake(0, 200, 100, 50)];
     CGPoint center =  buttonLocal.center;
     center.x = self.view.bounds.size.width / 2;
@@ -52,7 +55,8 @@
     
     NSURL *url = [NSURL URLWithString:@"http://devimages.apple.com.edgekey.net/streaming/examples/bipbop_4x3/gear1/prog_index.m3u8"];
     IJKPlayerViewController *ijkPlayerVC = [[IJKPlayerViewController alloc] initWithURL:url];
-    [self presentViewController:ijkPlayerVC animated:YES completion:nil];
+    
+    [self.navigationController pushViewController:ijkPlayerVC animated:YES];
 }
 
 #pragma mark 本地视频
@@ -80,6 +84,9 @@
 
     mediaUI.delegate = delegate;
 
+    if (@available(iOS 13.0,*)) {
+        mediaUI.modalPresentationStyle = UIModalPresentationFullScreen;
+    }
     [controller presentViewController:mediaUI animated:YES completion:nil];
     return YES;
 }
