@@ -1,5 +1,5 @@
 # IJKPlayerTest
-ijkplayer播放、暂停、停止、实时显示时间、快进快退
+ijkplayer播放本地视频、网络视频直播、暂停、停止、实时显示时间、快进快退，支持滑动屏幕调节声音亮度快进快退 
 ## 版本0.8.8
 
 IJKMediaFramework库太大了，下载
