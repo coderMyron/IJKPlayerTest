@@ -59,4 +59,4 @@ IJKMediaFramework库太大了，下载
     
     _player = [[IJKFFMoviePlayerController alloc] initWithContentURL:self.url withOptions:options];
 
-![image](https://github.com/coderMyron/IJKPlayerTest/blob/main/imagegif.gif)
+![image](https://github.com/coderMyron/IJKPlayerTest/blob/main/jietu.jpeg)
