@@ -32,7 +32,6 @@
 		A18159B7252A088E0067529D /* VideoToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A18159B6252A088E0067529D /* VideoToolbox.framework */; };
 		A18159BC252A08B10067529D /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A18159BB252A08B10067529D /* libc++.tbd */; };
 		A1835E05252F3AD3003F8645 /* TouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = A1835E04252F3AD3003F8645 /* TouchButton.m */; };
-		A1835E0A252F614F003F8645 /* imagegif.gif in Resources */ = {isa = PBXBuildFile; fileRef = A1835E09252F614E003F8645 /* imagegif.gif */; };
 		A1835E0F252F61D5003F8645 /* jietu.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = A1835E0E252F61D5003F8645 /* jietu.jpeg */; };
 		A18C3D03252B527100BC8FEE /* IJKMediaFramework.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A18C3D02252B527100BC8FEE /* IJKMediaFramework.framework */; };
 /* End PBXBuildFile section */
@@ -91,7 +90,6 @@
 		A18159BB252A08B10067529D /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		A1835E03252F3AD3003F8645 /* TouchButton.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TouchButton.h; sourceTree = "<group>"; };
 		A1835E04252F3AD3003F8645 /* TouchButton.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TouchButton.m; sourceTree = "<group>"; };
-		A1835E09252F614E003F8645 /* imagegif.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = imagegif.gif; sourceTree = "<group>"; };
 		A1835E0E252F61D5003F8645 /* jietu.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = jietu.jpeg; sourceTree = "<group>"; };
 		A18C3D02252B527100BC8FEE /* IJKMediaFramework.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IJKMediaFramework.framework; path = Frameworks/IJKMediaFramework.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -140,7 +138,6 @@
 			isa = PBXGroup;
 			children = (
 				A1835E0E252F61D5003F8645 /* jietu.jpeg */,
-				A1835E09252F614E003F8645 /* imagegif.gif */,
 				A12598012529C9F900582697 /* IJKPlayerTest */,
 				A125981D2529C9FA00582697 /* IJKPlayerTestTests */,
 				A12598282529C9FA00582697 /* IJKPlayerTestUITests */,
@@ -325,7 +322,6 @@
 			files = (
 				A12598122529C9FA00582697 /* LaunchScreen.storyboard in Resources */,
 				A1835E0F252F61D5003F8645 /* jietu.jpeg in Resources */,
-				A1835E0A252F614F003F8645 /* imagegif.gif in Resources */,
 				A125980F2529C9FA00582697 /* Assets.xcassets in Resources */,
 				A125980D2529C9F900582697 /* Main.storyboard in Resources */,
 			);
